@@ -62,7 +62,77 @@ class TestResult(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+def init_db():
+    """Создаём таблицы и наполняем начальными данными, если их ещё нет."""
+    with app.app_context():
+        db.create_all()
 
+        # если админ уже существует — считаем, что всё уже инициализировано
+        if User.query.filter_by(username='admin').first():
+            return
+
+        admin = User(
+            username='admin',
+            password=generate_password_hash('admin123', method='pbkdf2:sha256'),
+            role='admin'
+        )
+        db.session.add(admin)
+
+        teacher = User(
+            username='teacher',
+            password=generate_password_hash('teacher123', method='pbkdf2:sha256'),
+            role='teacher'
+        )
+        db.session.add(teacher)
+
+        student = User(
+            username='student',
+            password=generate_password_hash('student123', method='pbkdf2:sha256'),
+            role='student'
+        )
+        db.session.add(student)
+
+        topics_data = [
+            # --- здесь остаётся твой список topics_data как есть ---
+        ]
+
+        for topic_data in topics_data:
+            topic = Topic(
+                title=topic_data['title'],
+                content=topic_data['content'],
+                order_num=topic_data['order_num'],
+                created_by=admin.id
+            )
+            db.session.add(topic)
+
+        db.session.commit()
+
+        topics = Topic.query.all()
+
+        questions_data = [
+            # --- здесь остаётся твой список questions_data как есть ---
+        ]
+
+        for q_data in questions_data:
+            question = Question(
+                topic_id=q_data['topic_id'],
+                text=q_data['text'],
+                option_1=q_data['option_1'],
+                option_2=q_data['option_2'],
+                option_3=q_data['option_3'],
+                option_4=q_data['option_4'],
+                correct=q_data['correct'],
+                explanation=q_data['explanation'],
+                difficulty=q_data['difficulty'],
+                created_by=admin.id
+            )
+            db.session.add(question)
+
+        db.session.commit()
+        print("✅ База данных создана и наполнена темами и вопросами!")
+
+# ВАЖНО: вызываем init_db() СРАЗУ ПОСЛЕ ОПРЕДЕЛЕНИЯ ФУНКЦИИ
+init_db()
 # --- ФУНКЦИИ ДЛЯ ПРОВЕРКИ ПРАВ ---
 def is_admin():
     return current_user.is_authenticated and current_user.role == 'admin'
@@ -887,6 +957,6 @@ def create_initial_data():
             print("✅ База данных создана и наполнена темами и вопросами!")
 
 
-"""if __name__ == '__main__':
-    create_initial_data()
-    app.run(debug=True)"""
+if __name__ == '__main__':
+    port=int(os.environ.get("PORT",4000))
+    app.run(host="0.0.0.0", port=port)
