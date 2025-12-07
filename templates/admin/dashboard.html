@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Админ-панель{% endblock %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="list-group">
+                    <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action active">
+                        <i class="bi bi-speedometer2"></i> Дашборд
+                    </a>
+                    <a href="{{ url_for('admin_topics') }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-journal-text"></i> Управление темами
+                    </a>
+                    <a href="{{ url_for('admin_questions') }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-question-circle"></i> Управление вопросами
+                    </a>
+                    <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-people"></i> Управление пользователями
+                    </a>
+                    <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-house"></i> На сайт
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9 content">
+            <h1 class="mb-4"><i class="bi bi-speedometer2"></i> Админ-панель</h1>
+            
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-people"></i> Пользователи</h5>
+                            <h2 class="display-4">{{ stats.users }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-success">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-journal-text"></i> Темы</h5>
+                            <h2 class="display-4">{{ stats.topics }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-question-circle"></i> Вопросы</h5>
+                            <h2 class="display-4">{{ stats.questions }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-white bg-info">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="bi bi-graph-up"></i> Результаты</h5>
+                            <h2 class="display-4">{{ stats.results }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-clock-history"></i> Последние пользователи</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Логин</th>
+                                            <th>Роль</th>
+                                            <th>Дата регистрации</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in recent_users %}
+                                        <tr>
+                                            <td>{{ user.username }}</td>
+                                            <td>
+                                                <span class="badge bg-{% if user.role == 'admin' %}danger{% elif user.role == 'teacher' %}warning text-dark{% else %}secondary{% endif %}">
+                                                    {{ user.role }}
+                                                </span>
+                                            </td>
+                                            <td>{{ user.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-lightning"></i> Быстрые действия</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('admin_add_topic') }}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Добавить новую тему
+                                </a>
+                                <a href="{{ url_for('admin_add_question') }}" class="btn btn-success">
+                                    <i class="bi bi-question-circle"></i> Добавить вопрос
+                                </a>
+                                <a href="{{ url_for('admin_users') }}" class="btn btn-warning">
+                                    <i class="bi bi-person-plus"></i> Управление пользователями
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

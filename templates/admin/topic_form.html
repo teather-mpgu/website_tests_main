@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование' if topic else 'Добавление' }} темы{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Админ-панель</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin_topics') }}">Темы</a></li>
+            <li class="breadcrumb-item active">{{ 'Редактирование' if topic else 'Добавление' }}</li>
+        </ol>
+    </nav>
+    
+    <div class="card">
+        <div class="card-header bg-{% if topic %}warning{% else %}success{% endif %} text-white">
+            <h2 class="mb-0">
+                <i class="bi bi-{{ 'pencil' if topic else 'plus' }}-circle"></i>
+                {{ 'Редактирование темы' if topic else 'Добавление новой темы' }}
+            </h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('admin_edit_topic', topic_id=topic.id) if topic else url_for('admin_add_topic') }}">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Название темы</label>
+                    <input type="text" class="form-control" id="title" name="title" 
+                           value="{{ topic.title if topic else '' }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="order_num" class="form-label">Порядковый номер</label>
+                    <input type="number" class="form-control" id="order_num" name="order_num" 
+                           value="{{ topic.order_num if topic else 1 }}" min="1" required>
+                    <div class="form-text">Определяет порядок отображения тем</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="content" class="form-label">Содержание теории</label>
+                    <textarea class="form-control" id="content" name="content" rows="15" required>{{ topic.content if topic else '' }}</textarea>
+                    <div class="form-text">
+                        Поддерживается HTML-разметка. Примеры:<br>
+                        • &lt;h4&gt;Заголовок&lt;/h4&gt;<br>
+                        • &lt;p&gt;Абзац&lt;/p&gt;<br>
+                        • &lt;ul&gt;&lt;li&gt;Список&lt;/li&gt;&lt;/ul&gt;<br>
+                        • &lt;pre&gt;Код&lt;/pre&gt;
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{{ url_for('admin_topics') }}" class="btn btn-secondary me-md-2">Отмена</a>
+                    <button type="submit" class="btn btn-{% if topic %}warning{% else %}success{% endif %}">
+                        <i class="bi bi-save"></i> {{ 'Обновить' if topic else 'Сохранить' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.title }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Главная</a></li>
+            <li class="breadcrumb-item active">{{ topic.title }}</li>
+        </ol>
+    </nav>
+    
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">{{ topic.title }}</h2>
+            <small class="text-light">Обновлено: {{ topic.updated_at.strftime('%d.%m.%Y %H:%M') }}</small>
+        </div>
+        <div class="card-body">
+            <div class="topic-content">
+                {{ topic.content|safe }}
+            </div>
+            
+            {% if current_user.role in ['admin', 'teacher'] %}
+            <div class="alert alert-info mt-4">
+                <h5><i class="bi bi-gear"></i> Управление темой</h5>
+                {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin_edit_topic', topic_id=topic.id) }}" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i> Редактировать тему
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('admin_add_question' if current_user.role == 'admin' else 'teacher_add_question') }}" class="btn btn-success btn-sm">
+                    <i class="bi bi-plus-circle"></i> Добавить вопрос
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад к темам
+                </a>
+                {% if topic.questions %}
+                    <a href="{{ url_for('take_test', topic_id=topic.id) }}" class="btn btn-success btn-lg">
+                        <i class="bi bi-pencil-square"></i> Пройти тест ({{ topic.questions|length }} вопросов)
+                    </a>
+                {% else %}
+                    <button class="btn btn-secondary btn-lg" disabled>
+                        <i class="bi bi-pencil-square"></i> Нет вопросов для теста
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

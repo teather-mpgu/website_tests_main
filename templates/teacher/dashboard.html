@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Панель преподавателя{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"><i class="bi bi-easel"></i> Панель преподавателя</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-journal-text"></i> Темы</h5>
+                    <h2 class="display-4">{{ topics|length }}</h2>
+                    <a href="{{ url_for('index') }}" class="text-white">Просмотреть все темы →</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-question-circle"></i> Мои вопросы</h5>
+                    <h2 class="display-4">-</h2>
+                    <a href="{{ url_for('teacher_questions') }}" class="text-white">Управление вопросами →</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-graph-up"></i> Результаты</h5>
+                    <h2 class="display-4">{{ results|length }}</h2>
+                    <a href="#" class="text-white">Просмотреть статистику →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-lightning"></i> Быстрые действия</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('teacher_add_question') }}" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Добавить вопрос к тесту
+                        </a>
+                        <a href="{{ url_for('teacher_questions') }}" class="btn btn-primary">
+                            <i class="bi bi-list-check"></i> Управление моими вопросами
+                        </a>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-eye"></i> Просмотреть курс как студент
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="bi bi-info-circle"></i> Инструкция для преподавателя</h5>
+                </div>
+                <div class="card-body">
+                    <p>Как преподаватель вы можете:</p>
+                    <ol>
+                        <li>Добавлять новые вопросы к существующим темам</li>
+                        <li>Редактировать свои вопросы</li>
+                        <li>Просматривать результаты тестирования студентов</li>
+                        <li>Доступ ко всем учебным материалам</li>
+                    </ol>
+                    <p class="text-muted small">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Для создания новых тем или редактирования существующих обратитесь к администратору.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-clock-history"></i> Последние результаты тестов</h5>
+                </div>
+                <div class="card-body">
+                    {% if results %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Студент</th>
+                                    <th>Тема</th>
+                                    <th>Результат</th>
+                                    <th>Дата</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                <tr>
+                                    <td>{{ users_dict.get(result.user_id, 'Неизвестный пользователь') }}</td>
+                                    <td>{{ topics_dict.get(result.topic_id, 'Неизвестная тема') }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if result.percentage >= 80 %}success{% elif result.percentage >= 60 %}warning{% else %}danger{% endif %}">
+                                            {{ result.score }}/{{ result.total }} ({{ result.percentage|round(1) }}%)
+                                        </span>
+                                    </td>
+                                    <td>{{ result.completed_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">Результаты тестирования еще не зафиксированы.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

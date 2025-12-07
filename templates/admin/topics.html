@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Управление темами{% endblock %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="sidebar">
+                <div class="list-group">
+                    <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-speedometer2"></i> Дашборд
+                    </a>
+                    <a href="{{ url_for('admin_topics') }}" class="list-group-item list-group-item-action active">
+                        <i class="bi bi-journal-text"></i> Управление темами
+                    </a>
+                    <a href="{{ url_for('admin_questions') }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-question-circle"></i> Управление вопросами
+                    </a>
+                    <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-people"></i> Управление пользователями
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9 content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-journal-text"></i> Управление темами</h1>
+                <a href="{{ url_for('admin_add_topic') }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Добавить тему
+                </a>
+            </div>
+            
+            {% if topics %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Порядок</th>
+                            <th>Вопросов</th>
+                            <th>Обновлено</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for topic in topics %}
+                        <tr>
+                            <td>{{ topic.id }}</td>
+                            <td>
+                                <strong>{{ topic.title }}</strong><br>
+                                <small class="text-muted">{{ topic.content|striptags|truncate(50) }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ topic.order_num }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ topic.questions|length }}</span>
+                            </td>
+                            <td>{{ topic.updated_at.strftime('%d.%m.%Y') }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('view_topic', topic_id=topic.id) }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin_edit_topic', topic_id=topic.id) }}" class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin_delete_topic', topic_id=topic.id) }}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Удалить тему «{{ topic.title }}» и все связанные вопросы?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                Темы еще не добавлены. <a href="{{ url_for('admin_add_topic') }}" class="alert-link">Добавить первую тему</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

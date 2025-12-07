@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Редактирование' if question else 'Добавление' }} вопроса{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Админ-панель</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin_questions') }}">Вопросы</a></li>
+            <li class="breadcrumb-item active">{{ 'Редактирование' if question else 'Добавление' }}</li>
+        </ol>
+    </nav>
+    
+    <div class="card">
+        <div class="card-header bg-{% if question %}warning{% else %}success{% endif %} text-white">
+            <h2 class="mb-0">
+                <i class="bi bi-{{ 'pencil' if question else 'plus' }}-circle"></i>
+                {{ 'Редактирование вопроса' if question else 'Добавление нового вопроса' }}
+            </h2>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="topic_id" class="form-label">Тема</label>
+                            <select class="form-select" id="topic_id" name="topic_id" required>
+                                <option value="">Выберите тему</option>
+                                {% for t in topics %}
+                                <option value="{{ t.id }}" 
+                                    {% if question and question.topic_id == t.id %}selected{% endif %}>
+                                    {{ t.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="difficulty" class="form-label">Уровень сложности</label>
+                            <select class="form-select" id="difficulty" name="difficulty" required>
+                                <option value="easy" {% if question and question.difficulty == 'easy' %}selected{% endif %}>Легкий</option>
+                                <option value="medium" {% if question and question.difficulty == 'medium' %}selected{% endif %}>Средний</option>
+                                <option value="hard" {% if question and question.difficulty == 'hard' %}selected{% endif %}>Сложный</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="text" class="form-label">Текст вопроса</label>
+                    <textarea class="form-control" id="text" name="text" rows="3" required>{{ question.text if question else '' }}</textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="option_1" class="form-label">Вариант ответа 1</label>
+                            <input type="text" class="form-control" id="option_1" name="option_1" 
+                                   value="{{ question.option_1 if question else '' }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="option_2" class="form-label">Вариант ответа 2</label>
+                            <input type="text" class="form-control" id="option_2" name="option_2" 
+                                   value="{{ question.option_2 if question else '' }}" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="option_3" class="form-label">Вариант ответа 3</label>
+                            <input type="text" class="form-control" id="option_3" name="option_3" 
+                                   value="{{ question.option_3 if question else '' }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="option_4" class="form-label">Вариант ответа 4 (необязательно)</label>
+                            <input type="text" class="form-control" id="option_4" name="option_4" 
+                                   value="{{ question.option_4 if question else '' }}">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="correct" class="form-label">Правильный ответ</label>
+                            <select class="form-select" id="correct" name="correct" required>
+                                <option value="">Выберите правильный вариант</option>
+                                <option value="{{ question.option_1 if question else '' }}" 
+                                    {% if question and question.correct == question.option_1 %}selected{% endif %}>
+                                    Вариант 1
+                                </option>
+                                <option value="{{ question.option_2 if question else '' }}"
+                                    {% if question and question.correct == question.option_2 %}selected{% endif %}>
+                                    Вариант 2
+                                </option>
+                                <option value="{{ question.option_3 if question else '' }}"
+                                    {% if question and question.correct == question.option_3 %}selected{% endif %}>
+                                    Вариант 3
+                                </option>
+                                {% if question and question.option_4 %}
+                                <option value="{{ question.option_4 }}"
+                                    {% if question.correct == question.option_4 %}selected{% endif %}>
+                                    Вариант 4
+                                </option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="explanation" class="form-label">Объяснение ответа</label>
+                    <textarea class="form-control" id="explanation" name="explanation" rows="2">{{ question.explanation if question else '' }}</textarea>
+                    <div class="form-text">Пояснение, которое увидит студент после ответа</div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{{ url_for('admin_questions') }}" class="btn btn-secondary me-md-2">Отмена</a>
+                    <button type="submit" class="btn btn-{% if question %}warning{% else %}success{% endif %}">
+                        <i class="bi bi-save"></i> {{ 'Обновить' if question else 'Сохранить' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Автоматическое обновление правильного ответа при изменении вариантов
+    document.getElementById('option_1').addEventListener('input', updateCorrectOptions);
+    document.getElementById('option_2').addEventListener('input', updateCorrectOptions);
+    document.getElementById('option_3').addEventListener('input', updateCorrectOptions);
+    document.getElementById('option_4').addEventListener('input', updateCorrectOptions);
+    
+    function updateCorrectOptions() {
+        const select = document.getElementById('correct');
+        const option1 = document.getElementById('option_1').value;
+        const option2 = document.getElementById('option_2').value;
+        const option3 = document.getElementById('option_3').value;
+        const option4 = document.getElementById('option_4').value;
+        
+        // Сохраняем текущее значение
+        const currentValue = select.value;
+        
+        // Обновляем опции
+        select.options[1].text = `Вариант 1: ${option1}`;
+        select.options[1].value = option1;
+        
+        select.options[2].text = `Вариант 2: ${option2}`;
+        select.options[2].value = option2;
+        
+        select.options[3].text = `Вариант 3: ${option3}`;
+        select.options[3].value = option3;
+        
+        // Обрабатываем вариант 4
+        if (option4.trim()) {
+            if (select.options.length < 5) {
+                select.options[4] = new Option(`Вариант 4: ${option4}`, option4);
+            } else {
+                select.options[4].text = `Вариант 4: ${option4}`;
+                select.options[4].value = option4;
+            }
+        } else {
+            // Удаляем вариант 4, если он пустой
+            if (select.options.length > 4) {
+                select.remove(4);
+            }
+        }
+        
+        // Восстанавливаем выбор, если он все еще валиден
+        const validOptions = [option1, option2, option3];
+        if (option4.trim()) validOptions.push(option4);
+        
+        if (validOptions.includes(currentValue)) {
+            select.value = currentValue;
+        }
+    }
+</script>
+{% endblock %}

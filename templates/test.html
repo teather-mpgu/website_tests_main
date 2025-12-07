@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Тест: {{ topic.title }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('view_topic', topic_id=topic.id) }}">{{ topic.title }}</a></li>
+            <li class="breadcrumb-item active">Тест</li>
+        </ol>
+    </nav>
+    
+    {% if results %}
+    <div class="card mb-4">
+        <div class="card-header bg-{% if percentage >= 80 %}success{% elif percentage >= 60 %}warning{% else %}danger{% endif %} text-white">
+            <h3 class="mb-0"><i class="bi bi-award"></i> Результаты теста</h3>
+        </div>
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <div class="display-4 fw-bold">{{ percentage|round(1) }}%</div>
+                <p class="lead">Ваш результат: <strong>{{ score }}</strong> из {{ total }}</p>
+                <div class="progress" style="height: 30px;">
+                    <div class="progress-bar progress-bar-striped bg-{% if percentage >= 80 %}success{% elif percentage >= 60 %}warning{% else %}danger{% endif %}" 
+                         role="progressbar" style="width: {{ percentage }}%">
+                        {{ percentage|round(1) }}%
+                    </div>
+                </div>
+            </div>
+            
+            <h4 class="mb-3">Детализация ответов:</h4>
+            {% for res in results %}
+            <div class="card mb-3 {{ 'answer-correct' if res.is_correct else 'answer-incorrect' }}">
+                <div class="card-header d-flex justify-content-between">
+                    <strong>Вопрос {{ loop.index }}</strong>
+                    <span class="badge bg-{% if res.is_correct %}success{% else %}danger{% endif %}">
+                        {% if res.is_correct %}✓ Правильно{% else %}✗ Неправильно{% endif %}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ res.q.text }}</h5>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <p><strong>Ваш ответ:</strong><br>
+                            <span class="badge bg-secondary">{{ res.user_answer }}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Правильный ответ:</strong><br>
+                            <span class="badge bg-success">{{ res.q.correct }}</span></p>
+                        </div>
+                    </div>
+                    
+                    {% if res.q.explanation %}
+                    <div class="alert alert-info mt-2">
+                        <strong><i class="bi bi-lightbulb"></i> Объяснение:</strong>
+                        {{ res.q.explanation }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="text-center mt-4">
+                <a href="{{ url_for('view_topic', topic_id=topic.id) }}" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-book"></i> Повторить теорию
+                </a>
+                <a href="{{ url_for('take_test', topic_id=topic.id) }}" class="btn btn-success">
+                    <i class="bi bi-arrow-repeat"></i> Пройти тест еще раз
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0"><i class="bi bi-pencil-square"></i> Тест: {{ topic.title }}</h2>
+            <small class="text-light">{{ questions|length }} вопросов</small>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <h5><i class="bi bi-info-circle"></i> Инструкция:</h5>
+                <ul class="mb-0">
+                    <li>Выберите один правильный ответ для каждого вопроса</li>
+                    <li>Нажмите "Завершить тест" для проверки ответов</li>
+                    <li>Для успешной сдачи необходимо набрать не менее 60%</li>
+                </ul>
+            </div>
+            
+            <form method="POST" id="testForm">
+                {% for question in questions %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Вопрос {{ loop.index }}</h5>
+                        <span class="badge badge-difficulty-{{ question.difficulty }}">
+                            {{ question.difficulty }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">{{ question.text }}</h5>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="{{ question.id }}" id="q{{ question.id }}_1" value="{{ question.option_1 }}" required>
+                            <label class="form-check-label" for="q{{ question.id }}_1">
+                                <strong>A)</strong> {{ question.option_1 }}
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="{{ question.id }}" id="q{{ question.id }}_2" value="{{ question.option_2 }}" required>
+                            <label class="form-check-label" for="q{{ question.id }}_2">
+                                <strong>B)</strong> {{ question.option_2 }}
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="{{ question.id }}" id="q{{ question.id }}_3" value="{{ question.option_3 }}" required>
+                            <label class="form-check-label" for="q{{ question.id }}_3">
+                                <strong>C)</strong> {{ question.option_3 }}
+                            </label>
+                        </div>
+                        
+                        {% if question.option_4 %}
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="{{ question.id }}" id="q{{ question.id }}_4" value="{{ question.option_4 }}" required>
+                            <label class="form-check-label" for="q{{ question.id }}_4">
+                                <strong>D)</strong> {{ question.option_4 }}
+                            </label>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success btn-lg px-5">
+                        <i class="bi bi-check-circle"></i> Завершить тест
+                    </button>
+                    <a href="{{ url_for('view_topic', topic_id=topic.id) }}" class="btn btn-outline-secondary btn-lg ms-2">
+                        <i class="bi bi-x-circle"></i> Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Предупреждение при попытке уйти со страницы теста
+    window.addEventListener('beforeunload', function (e) {
+        if (!document.getElementById('testForm').checkValidity()) {
+            e.preventDefault();
+            e.returnValue = 'Вы не завершили тест. Все несохраненные ответы будут потеряны.';
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Информация</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Добро пожаловать в систему обучения математической логике!
+                        {% if current_user.is_authenticated %}
+                            Вы вошли как <strong>{{ current_user.username }}</strong>
+                            ({{ current_user.role }})
+                        {% endif %}
+                    </p>
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-danger btn-sm w-100">
+                            <i class="bi bi-speedometer2"></i> Админ-панель
+                        </a>
+                    {% elif current_user.role == 'teacher' %}
+                        <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-warning btn-sm w-100">
+                            <i class="bi bi-easel"></i> Панель преподавателя
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+
+        </div>
+        
+        <div class="col-md-9">
+            <h1 class="mb-4"><i class="bi bi-journal-text"></i> Темы курса: Математическая логика</h1>
+            
+            {% if not topics %}
+                <div class="alert alert-warning">
+                    Темы еще не добавлены.
+                    {% if current_user.role in ['admin', 'teacher'] %}
+                        <a href="{{ url_for('admin_topics' if current_user.role == 'admin' else 'teacher_dashboard') }}" class="alert-link">
+                            Добавить первую тему
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            <div class="row">
+                {% for topic in topics %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ topic.title }}</h5>
+                            <span class="badge bg-primary">Тема {{ topic.order_num }}</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {{ topic.content|striptags|truncate(150) }}
+                            </p>
+                            <div class="mt-3">
+                                <span class="badge bg-light text-dark">
+                                    <i class="bi bi-question-circle"></i> 
+                                    {{ topic.questions|length }} вопросов
+                                </span>
+                                <span class="badge bg-light text-dark ms-2">
+                                    <i class="bi bi-clock"></i> 
+                                    {{ topic.created_at.strftime('%d.%m.%Y') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{{ url_for('view_topic', topic_id=topic.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-book"></i> Изучить теорию
+                            </a>
+                            {% if topic.questions %}
+                                <a href="{{ url_for('take_test', topic_id=topic.id) }}" class="btn btn-success btn-sm float-end">
+                                    <i class="bi bi-pencil-square"></i> Пройти тест
+                                </a>
+                            {% else %}
+                                <button class="btn btn-secondary btn-sm float-end" disabled>
+                                    <i class="bi bi-pencil-square"></i> Нет вопросов
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
